@@ -48,7 +48,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # 处理一个非预期的情况：假设用户已经登录，却导航到应用的*/login* URL。需要导航到/index URL
+    # 处理一个非预期的情况：假设用户已经登录，却导航到/login URL。需要导航到/index URL
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
