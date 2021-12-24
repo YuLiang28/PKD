@@ -7,6 +7,7 @@ from db import *
 from models import User,Student
 from views import *
 from forms import *
+import json
 
 app = Flask(__name__, static_url_path='')
 
@@ -38,8 +39,8 @@ def index():
     data = {
         "title":"管理页面",
         "username":query_UserById(current_user.get_id()).username,
-        "fields":get_Students_Fields(),
-        "students":get_Students()
+        "fields":query_Students_Fields(),
+        "students":query_Students()
     }
     return render_template('index.html',data=data)
 
@@ -74,23 +75,55 @@ def logout():
     logout_user()
     return '登出成功！'
 
-@app.route('/add/student', methods=['POST'])
+
+@app.route('/students/list', methods=['get'])
+@login_required
+def get_students_list():
+    return json.dumps(query_StudentsList())
+
+@app.route('/student/add', methods=['POST'])
 @login_required
 def student_add():
     if request is None:
-        flash("添加失败，请重新填写。")
-    id = int(request.form.get('id'))
-    name = request.form.get('name')
-    age = int(request.form.get('age'))
-    funds = float(request.form.get('funds'))
-    addr = request.form.get('addr')
+        return json.dumps({"status":400,"msg":"添加失败，请重新填写。"})
+    id = request.form.get('id',type=int)
+    name = request.form.get('name',type=str)
+    age = request.form.get('age',type=int,default=None)
+    funds = request.form.get('funds',type=float,default=None)
+    addr = request.form.get('addr',type=int,default=None)
+    honor = request.form.get('honor',type=str,default=None)
     if name == '':
-        flash("添加失败，请输入姓名。")
-        return redirect(url_for('index'))
-    add_Student(Student(id=id, name=name, age=age,funds= funds,addr=addr))
-    flash("添加成功。")
-    return redirect(url_for('index'))
+        return json.dumps({"status":400,"msg":"添加失败，请输入姓名。"})
+    add_Student(Student(id=id, name=name, age=age,funds= funds,addr=addr,honor=honor))
+    return json.dumps({"status":200,"msg":f"添加用户 {name} 成功。"})
 
+@app.route('/student/del', methods=['POST'])
+@login_required
+def student_del():
+    if request is None:
+        return json.dumps({"status":400,"msg":"删除失败，请刷新重试。"})
+    id = request.form.get('id',type=int)
+    if id == None:
+        return json.dumps({"status":400,"msg":"删除失败，请刷新重试。"})
+    del_StudentById(id)
+    return json.dumps({"status":200,"msg":f"删除 ID 为 {id} 的用户成功。"})
+
+@app.route('/student/edit', methods=['POST'])
+@login_required
+def student_edit():
+    if request is None:
+        return json.dumps({"status":400,"msg":"修改失败，请刷新重试。"})
+    
+    id = request.form.get('id',type=int)
+    name = request.form.get('name',type=str)
+    age = request.form.get('age',type=int,default=None)
+    funds = request.form.get('funds',type=float,default=None)
+    addr = request.form.get('addr',type=int,default=None)
+    honor = request.form.get('honor',type=str,default=None)
+    if id == None:
+        return json.dumps({"status":400,"msg":"修改失败，请刷新重试。"})
+    edit_Student(Student(id=id, name=name, age=age,funds= funds,addr=addr,honor=honor))
+    return json.dumps({"status":200,"msg":f"修改 ID 为 {id} 的用户成功。"})
 
 # @app.teardown_request
 # def shutdown_session(exception=None):
