@@ -1,8 +1,9 @@
 from db import db
 from flask_login import UserMixin
+from flask import json
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm.attributes import QueryableAttribute
 from werkzeug.security import generate_password_hash, check_password_hash
-
 
 class User(UserMixin,db.Model):
     __tablename__ = 'users'
@@ -31,9 +32,7 @@ class Student(db.Model):
     age =db.Column(db.Integer)
     funds = db.Column(db.Float)
     addr = db.Column(db.String(32))
+    honor = db.Column(db.String(32))
 
     def __repr__(self):
         return '<Student %r>' % (self.name)
-
-
-
