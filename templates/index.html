@@ -1,19 +1,27 @@
 {% extends "dashboard-layout.html" %}
+
+{% block title %}
+<title>学生信息管理 - {{ siteName }}</title>
+{% endblock %}
+
 {% block css %}
 <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 <link href="vendor/datatables/select.bootstrap4.css" rel="stylesheet">
-
-
 {% endblock %}
-{% block body %}
 
+{% block body %}
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between">
-        <h6 class="m-0 font-weight-bold text-primary">学生信息表</h6>
+        <h4 class="m-0 font-weight-bold text-primary">学生信息表</h4>
         <div>
-            <i class="far fa-edit text-primary" id="editBtn"></i>
-            <i class="far fa-trash-alt text-primary" id="delBtn"></i>
-            <i class="fas fa-plus text-primary" id="addBtn"></i>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-primary" id="editBtn"><i
+                        class="far fa-edit text-light"></i></button>
+                <button type="button" class="btn btn-primary" id="delBtn"><i
+                        class="far fa-trash-alt text-light"></i></button>
+                <button type="button" class="btn btn-primary" id="addBtn"><i
+                        class="fas fa-plus text-light"></i></button>
+            </div>
         </div>
     </div>
     <div class="card-body">
@@ -26,96 +34,58 @@
                         {% endfor %}
                     </tr>
                 </thead>
-                <tfoot>
-                    <tr>
-                        {% for field in data["fields"] %}
-                        <th>{{ field }}</th>
-                        {% endfor %}
-                    </tr>
-                </tfoot>
             </table>
         </div>
     </div>
 </div>
 
 <form id="modalForm">
-<div class="modal fade" id="modalBox" data-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLabel"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="modalBody">
+    <div class="modal fade" id="modalBox" data-backdrop="static" data-keyboard="false" tabindex="-1"
+        aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalBody">
 
 
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                <button id="modalSubmitBtn" type="button" class="btn btn-primary">保存</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button id="modalSubmitBtn" type="button" class="btn btn-primary">保存</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </form>
 
-<div id="toastBox" class="position-fixed bottom-0 right-0 p-3" style="z-index: 5; right: 0; bottom: 0;">
-    {% with messages = get_flashed_messages() %}
-    {% for msg in messages %}
-    <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-delay="10000">
-        <div class="toast-header">
-            <strong class="mr-auto">消息</strong>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="toast-body">
-            {{ msg }}
-        </div>
-    </div>
-    {% endfor %}
-    {% endwith %}
-</div>
 
 
 {% endblock %}
 
 {% block javascript %}
-<!-- Page level plugins -->
 <script src="vendor/datatables/jquery.dataTables.min.js"></script>
 <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
 <script src="vendor/datatables/dataTables.select.js"></script>
-<!-- Page level custom scripts -->
-<!-- <script src="js/demo/datatables-demo.js"></script> -->
 
 
 <script>
-        function formAjax(url,formData,table) {
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function (result) {
-                jsResult = JSON.parse(result)
-                toastr["info"]( jsResult.msg,"消息")
-                table.ajax.reload();
-                $('#modalBox').modal('toggle'); // 添加成功后关闭
-            },
-            error: function (result) {
-                jsResult = JSON.parse(result)
-                toastr["error"](jsResult.msg,"消息")
-            }
-        });
+    function submitSusses(jsResult) {
+        table.ajax.reload();
+        $('#modalBox').modal('toggle');
     }
+
     $(document).ready(function () {
         // 初始化 dataTable
-        var table = $('#dataTable').DataTable({
-            ajax: {url:"{{ url_for('get_students_list') }}",dataSrc:""},
+        table = $('#dataTable').DataTable({
+            ajax: {
+                url: "{{ url_for('get_students_list') }}",
+                dataSrc: ""
+            },
             language: {
                 url: '/js/demo/datatables-zh.json' // 语言文件
             },
@@ -124,11 +94,6 @@
                 style: "single"
             } // 只允许选择单行
         });
-
-        // 通知弹窗
-        $('.toast').toast();
-        $('.toast').toast('show');
-
 
         var fields = $('#dataTable').dataTable().dataTableSettings[0].aoColumns; // 字段
 
@@ -140,11 +105,12 @@
             $("#modalSubmitBtn").click(function () {
                 var formData = new FormData();
                 fields.map(x => {
-                    formData.append(x.sTitle, $("#modalBody input[name='"+x.sTitle+"']").val());
+                    formData.append(x.sTitle, $("#modalBody input[name='" + x.sTitle +
+                        "']").val());
                 });
                 let url = "{{ url_for('student_add') }}";
 
-                formAjax(url,formData,table);
+                formAjax(url, formData, submitSusses);
             });
             fields.map(x => {
                 $formItem = $("" +
@@ -155,14 +121,14 @@
                     "</div>");
                 $("#modalBody").append($formItem)
             });
-            $('#modalBox').modal('toggle');// 显示
+            $('#modalBox').modal('toggle'); // 显示
         })
         $("#delBtn").click(function () {
             var columns = table.row({
                 selected: true
             }).data();
             if (columns == undefined) {
-                toastr["warning"]( "执行删除操作前，请先选择一行数据。","消息")
+                toastr["warning"]("执行删除操作前，请先选择一行数据。", "消息")
                 return;
             }
             $("#modalBody").children().remove() // 清空modal
@@ -174,7 +140,7 @@
                 formData.append("id", $("#modalBody input[name='id']").val());
                 let url = "{{ url_for('student_del') }}";
 
-                formAjax(url,formData,table);
+                formAjax(url, formData, submitSusses);
             });
             for (let index = 0; index < fields.length; index++) {
                 const field = fields[index];
@@ -183,19 +149,19 @@
                     "<div class=\"form-group\">" +
                     "<label for=\"" + field.sTitle + "\">" + field.sTitle + "</label>" +
                     "<input type=\"text\" class=\"form-control\" id=\"" + field.sTitle +
-                    "\" name=\"" + field.sTitle + "\" value=\"" + column + "\">" +
+                    "\" name=\"" + field.sTitle + "\" value=\"" + column + "\" readonly>" +
                     "</div>");
                 $("#modalBody").append($formItem)
             }
             $('#modalBox').modal('toggle');
         })
-        
+
         $("#editBtn").click(function () {
             var columns = table.row({
                 selected: true
             }).data();
             if (columns == undefined) {
-                toastr["warning"]( "执行修改操作前，请先选择一行数据。","消息")
+                toastr["warning"]("执行修改操作前，请先选择一行数据。", "消息")
                 return;
             }
             $("#modalBody").children().remove() // 清空modal
@@ -205,11 +171,12 @@
             $("#modalSubmitBtn").click(function () {
                 var formData = new FormData();
                 fields.map(x => {
-                    formData.append(x.sTitle, $("#modalBody input[name='"+x.sTitle+"']").val());
+                    formData.append(x.sTitle, $("#modalBody input[name='" + x.sTitle +
+                        "']").val());
                 });
                 let url = "{{ url_for('student_edit') }}";
 
-                formAjax(url,formData,table);
+                formAjax(url, formData, submitSusses);
             });
             for (let index = 0; index < fields.length; index++) {
                 const field = fields[index];
