@@ -1,0 +1,209 @@
+{% extends "dashboard-layout.html" %}
+{% block title %}
+<title>优惠券 - {{ siteName }}</title>
+{% endblock %}
+{% block css %}
+<link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+<link href="vendor/datatables/select.bootstrap4.css" rel="stylesheet">
+{% endblock %}
+{% block body %}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between">
+        <h4 class="m-0 font-weight-bold text-primary">优惠券</h4>
+        <div>
+            <div class="input-group">
+                <input type="text" class="form-control" id="couponTotal" placeholder="输入生成优惠券总数。"
+                    aria-describedby="button-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary btn-primary" type="button" id="addBtn"><i
+                            class="fas fa-plus text-light"></i></button>
+                    <button type="button" class="btn btn-primary" id="delBtn"><i
+                            class="far fa-trash-alt text-light"></i></button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="tableBox" class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0"></table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalBox" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                <button id="modalSubmitBtn" type="button" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<script src="vendor/datatables/dataTables.select.js"></script>
+<script>
+    // 获取优惠券数据
+    function getCouponData() {
+        url = "{{ url_for('coupon_data_ajax') }}";
+        getAjax(url, loadData);
+    }
+
+    // 添加优惠券
+    function couponSuccess(jsResult) {
+        getCouponData();
+        $('#modalBox').modal('toggle');
+    }
+
+    function loadData(jsResult) {
+        try {
+            table.destroy();
+            // table 销毁成功的话 table 标签也会被删除需要重建
+            $("#tableBox").append($('<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0"></table>')); 
+        } catch (e) {}
+        $('#dataTable').children().remove();
+        tableData = jsResult.data
+        columns = jsResult.fields
+        if (columns.length == 0) {
+            toastr["error"]("遇到致命错误，请刷新重试。", "错误");
+            return;
+        }
+        if (tableData.length == 0) {
+            $('#dataTable').append($("<p id='tableTextEmpty' class='text-center m-0'>暂时还没有优惠券，需要添加优惠券请点击右上角按钮。</p>"));
+            return;
+        } else {
+            $('#tableTextEmpty').remove();
+        }
+
+        for (let index = 0; index < columns.length; index++) {
+            const element = columns[index];
+            columns[index] = {
+                "title": element
+            }
+        }
+
+        for (let i = 0; i < tableData.length; i++) {
+            for (let j = 0; j < tableData[i].length; j++) {
+                if (tableData[i][j] == null) {
+                    tableData[i][j] = "";
+                }
+            }
+        }
+
+        table = $('#dataTable').DataTable({
+            data: tableData,
+            columns: columns,
+            language: {
+                url: '/js/demo/datatables-zh.json' // 语言文件
+            },
+            stripeClasses: [], // 禁止添加 odd class
+            select: true // 开启选择功能
+        });
+        
+    }
+
+    $(document).ready(function () {
+        getCouponData();
+    });
+
+    // 添加优惠券
+    $("#addBtn").click(function () {
+        $("#modalBody").children().remove() // 清空modal
+        $("#modalSubmitBtn").attr('disabled',false);
+        $("#modalLabel").text('添加优惠券？');
+        $("#modalSubmitBtn").text("添加");
+        $("#modalSubmitBtn").unbind();
+
+        var couponTotal = $("#couponTotal").val()
+        if (!couponTotal) {
+            toastr["info"]("请输入要添加的优惠券数量", "消息");
+            return;
+        }
+        // 判断是否为正整数
+        if (!isInteger(couponTotal) || couponTotal.indexOf("-") != -1) {
+            toastr["info"]("请输入正整数。", "消息");
+            return;
+        }
+        $("#modalBody").append($("<p>将添加 " + couponTotal + " 张优惠券。</p>"));
+
+        $("#modalSubmitBtn").click(function () {
+            $("#modalSubmitBtn").text("请稍等");
+            $("#modalSubmitBtn").attr('disabled',true);
+            url = "{{ url_for('coupon_add_ajax') }}" + "?total=" + couponTotal;
+            getAjax(url, couponSuccess);
+        });
+        $('#modalBox').modal('toggle'); // 显示
+    });
+
+    // 删除优惠券
+    $("#delBtn").click(function () {
+        let url = "{{ url_for('coupon_del_ajax') }}";
+
+        // rows 获取多行选择
+        // row 获取单行
+        let columns = table.rows({
+            selected: true
+        }).data();
+
+
+        $("#modalBody").children().remove() // 清空modal
+        $("#modalLabel").text('删除优惠券');
+        $("#modalSubmitBtn").text("删除");
+        $("#modalSubmitBtn").unbind();
+        $("#modalSubmitBtn").attr('disabled',false);
+
+
+        var formData = new FormData();
+        var formIdName = "couponID"
+        // 没有选择某一行，则删除所有优惠券
+        if (columns.length == 0) {
+            $("#modalBody").append($("<p>将删除全部优惠券。如需删除指定优惠券请选择后再点击删除按钮。</p>"));
+        } else { // 如果选择某一行，则删除指定优惠券
+            idStr = "";
+            columns.map(col => {
+                idStr += col[0] + " "; // 获取行 ID 添加到 HTMl 页面
+                formData.append(formIdName, col[0]) // 添加 ID 到表单
+            });
+            $("#modalBody").append($("<p>将删除下列 ID 的优惠券。如需删除全部优惠券请不要选择行，直接点击删除按钮。</p>" +
+                "<button class='btn btn-primary' type='button' data-toggle='collapse'" +
+                "data-target='#modalCollapse' aria-expanded='false' aria-controls='modalCollapse'>显示</button>" +
+                '<div class="collapse" id="modalCollapse">' +
+                '<div class="card card-body">' +
+                idStr +
+                '</div>' +
+                '</div>'
+            ));
+        }
+
+        // 添加按钮点击
+        $("#modalSubmitBtn").click(function () {
+            
+            if (formData.has(formIdName)) {
+                formAjax(url, formData, couponSuccess);
+            } else {
+                getAjax(url, couponSuccess);
+            }
+            
+        });
+
+        $('#modalBox').modal('toggle');
+    })
+</script>
+{% endblock %}
