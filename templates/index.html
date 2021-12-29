@@ -75,8 +75,12 @@
 
 <script>
     function submitSusses(jsResult) {
-        table.ajax.reload();
         $('#modalBox').modal('toggle');
+        const index = fields.indexOf(pwd);
+        if (index > -1) {
+            fields.splice(index, 1);
+        }
+        table.ajax.reload();
     }
 
     $(document).ready(function () {
@@ -95,9 +99,19 @@
             } // 只允许选择单行
         });
 
-        var fields = $('#dataTable').dataTable().dataTableSettings[0].aoColumns; // 字段
+        fields = $('#dataTable').dataTable().dataTableSettings[0].aoColumns; // 字段
+        pwd = {"sTitle":"password"}
+
+        $('#modalBox').on('hidden.bs.modal', function (event) {
+            const index = fields.indexOf(pwd);
+            if (index > -1) {
+                fields.splice(index, 1);
+            }
+        });
 
         $("#addBtn").click(function () {
+            fields.push(pwd);
+
             $("#modalBody").children().remove() // 清空modal
             $("#modalLabel").text('添加学生信息');
             $("#modalSubmitBtn").text("保存");
@@ -119,7 +133,7 @@
                     "<input type=\"text\" class=\"form-control\" id=\"" + x.sTitle +
                     "\" name=\"" + x.sTitle + "\">" +
                     "</div>");
-                $("#modalBody").append($formItem)
+                $("#modalBody").append($formItem);
             });
             $('#modalBox').modal('toggle'); // 显示
         })
@@ -142,6 +156,7 @@
 
                 formAjax(url, formData, submitSusses);
             });
+            
             for (let index = 0; index < fields.length; index++) {
                 const field = fields[index];
                 const column = columns[index];
@@ -157,14 +172,17 @@
         })
 
         $("#editBtn").click(function () {
+            
+
             var columns = table.row({
                 selected: true
             }).data();
             if (columns == undefined) {
-                toastr["warning"]("执行修改操作前，请先选择一行数据。", "消息")
+                toastr["warning"]("执行修改操作前，请先选择一行数据。", "消息");
                 return;
             }
-            $("#modalBody").children().remove() // 清空modal
+            fields.push(pwd)
+            $("#modalBody").children().remove(); // 清空modal
             $("#modalLabel").text('修改学生信息');
             $("#modalSubmitBtn").text("修改");
             $("#modalSubmitBtn").unbind();
@@ -174,20 +192,23 @@
                     formData.append(x.sTitle, $("#modalBody input[name='" + x.sTitle +
                         "']").val());
                 });
+                
                 let url = "{{ url_for('student_edit') }}";
 
                 formAjax(url, formData, submitSusses);
             });
+            
             for (let index = 0; index < fields.length; index++) {
-                const field = fields[index];
-                const column = columns[index];
+                let field = fields[index];
+                let column = columns[index];
+                column = column == undefined ? "" : column
                 $formItem = $("" +
                     "<div class=\"form-group\">" +
                     "<label for=\"" + field.sTitle + "\">" + field.sTitle + "</label>" +
                     "<input type=\"text\" class=\"form-control\" id=\"" + field.sTitle +
                     "\" name=\"" + field.sTitle + "\" value=\"" + column + "\">" +
                     "</div>");
-                $("#modalBody").append($formItem)
+                $("#modalBody").append($formItem);
             }
             $('#modalBox').modal('toggle');
         })
