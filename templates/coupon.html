@@ -11,6 +11,7 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between">
         <h4 class="m-0 font-weight-bold text-primary">优惠券</h4>
+        {% if data['user_type'] == 'admin' %}
         <div>
             <div class="input-group">
                 <input type="text" class="form-control" id="couponTotal" placeholder="输入生成优惠券总数。"
@@ -24,6 +25,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
     <div class="card-body">
         <div id="tableBox" class="table-responsive">
@@ -76,7 +78,8 @@
         try {
             table.destroy();
             // table 销毁成功的话 table 标签也会被删除需要重建
-            $("#tableBox").append($('<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0"></table>')); 
+            $("#tableBox").append($(
+                '<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0"></table>'));
         } catch (e) {}
         $('#dataTable').children().remove();
         tableData = jsResult.data
@@ -116,7 +119,7 @@
             stripeClasses: [], // 禁止添加 odd class
             select: true // 开启选择功能
         });
-        
+
     }
 
     $(document).ready(function () {
@@ -126,7 +129,7 @@
     // 添加优惠券
     $("#addBtn").click(function () {
         $("#modalBody").children().remove() // 清空modal
-        $("#modalSubmitBtn").attr('disabled',false);
+        $("#modalSubmitBtn").attr('disabled', false);
         $("#modalLabel").text('添加优惠券？');
         $("#modalSubmitBtn").text("添加");
         $("#modalSubmitBtn").unbind();
@@ -145,7 +148,7 @@
 
         $("#modalSubmitBtn").click(function () {
             $("#modalSubmitBtn").text("请稍等");
-            $("#modalSubmitBtn").attr('disabled',true);
+            $("#modalSubmitBtn").attr('disabled', true);
             url = "{{ url_for('coupon_add_ajax') }}" + "?total=" + couponTotal;
             getAjax(url, couponSuccess);
         });
@@ -167,7 +170,7 @@
         $("#modalLabel").text('删除优惠券');
         $("#modalSubmitBtn").text("删除");
         $("#modalSubmitBtn").unbind();
-        $("#modalSubmitBtn").attr('disabled',false);
+        $("#modalSubmitBtn").attr('disabled', false);
 
 
         var formData = new FormData();
@@ -194,13 +197,13 @@
 
         // 添加按钮点击
         $("#modalSubmitBtn").click(function () {
-            
+
             if (formData.has(formIdName)) {
                 formAjax(url, formData, couponSuccess);
             } else {
                 getAjax(url, couponSuccess);
             }
-            
+
         });
 
         $('#modalBox').modal('toggle');
