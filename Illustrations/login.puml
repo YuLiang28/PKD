@@ -1,0 +1,18 @@
+@startuml
+start
+:"访问登录页面";
+:"输入用户名、密码和用户类型";
+if ("验证用户名、密码和用户类型是否正确") then (yes)
+    :"登录账号";
+    if("提交的 URL 时候带有 next 参数") then (yes)
+        :"导航到 next 参数的 URL";
+    else (no)
+        :"默认导航到 index";
+    endif
+else (no)
+    :"提示用户输入错误";
+endif
+
+stop
+
+@enduml

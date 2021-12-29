@@ -1,0 +1,9 @@
+@startuml
+skinparam responseMessageBelowArrow true
+管理员用户 -> 界面 : 进入界面
+界面 -> 服务器 : 请求学生信息
+服务器 -> 数据库 : 查询学生信息表
+数据库 -> 服务器 : 返回查询的学生信息记录
+服务器 -> 界面 : 返回学生信息
+界面 -> 管理员用户 : 展示学生信息
+@enduml

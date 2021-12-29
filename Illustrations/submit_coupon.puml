@@ -1,0 +1,12 @@
+@startuml
+start
+:"POST 请求";
+if ("检查优惠券存在并有效") then (yes)
+    :"设置优惠券状态为已使用";
+else (no)
+    :"返回优惠券不可用";
+endif
+
+stop
+
+@enduml

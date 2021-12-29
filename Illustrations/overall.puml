@@ -1,0 +1,25 @@
+@startuml
+
+node "学生信息管理系统" {
+    folder "优惠券模块"{
+        interface  优惠券检查接口
+        interface  优惠券增加接口
+        interface  优惠券删除接口
+        interface  优惠券获取接口
+    }
+    folder "学生信息模块"{
+        interface  学生信息增加接口
+        interface  学生信息删除接口
+        interface  学生信息修改接口
+        interface  学生信息获取接口
+    }
+    folder "登录模块"{
+        interface  登出
+        interface  登录
+    }
+}
+
+
+
+
+@enduml
