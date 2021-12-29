@@ -1,23 +1,35 @@
+alembic==1.7.5
+aniso8601==9.0.1
 autopep8==1.5
 cachelib==0.4.1
 certifi==2021.10.8
+charset-normalizer==2.0.9
 click==8.0.3
 colorama==0.4.4
 Flask @ file:///tmp/build/80754af9/flask_1634118196080/work
 Flask-Login==0.5.0
+Flask-Migrate==3.1.0
+Flask-RESTful==0.3.9
 Flask-Session==0.4.0
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==1.0.0
 greenlet==1.1.2
+idna==3.3
 importlib-metadata==4.10.0
+importlib-resources==5.4.0
 itsdangerous @ file:///tmp/build/80754af9/itsdangerous_1621432558163/work
 Jinja2 @ file:///tmp/build/80754af9/jinja2_1635780242639/work
 Keras==2.3.1
+Mako==1.1.6
 MarkupSafe @ file:///C:/ci/markupsafe_1621528383308/work
 pycodestyle==2.5.0
+pytz==2021.3
+requests==2.26.0
 rope==0.17.0
+six==1.16.0
 SQLAlchemy==1.4.28
 typing_extensions==4.0.1
+urllib3==1.26.7
 Werkzeug @ file:///tmp/build/80754af9/werkzeug_1635505089296/work
 wincertstore==0.2
 WTForms==3.0.0
