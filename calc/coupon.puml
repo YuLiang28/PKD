@@ -1,0 +1,14 @@
+@startuml
+
+package "计算器" {
+    [优惠券提交窗口]
+}
+
+node "学生信息管理系统" {
+    folder "优惠券模块"{
+        [优惠券提交窗口] - HTTP : Post
+        HTTP - [优惠券检查接口]
+    }
+}
+
+@enduml

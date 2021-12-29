@@ -1,0 +1,21 @@
+@startuml
+start
+:"等于按钮被点击";
+if ("优惠券是否存在") then (yes)
+    if("尝试调用 eval 函数对数据表达式进行计算") then (yes)
+        :"将计算结果返回";
+    else (no)
+        :"提示用户输入无效";
+    endif
+else (no)
+    :"弹出优惠券输入窗口";
+    if ("用户输入优惠券有效") then (yes)
+        :"关闭窗口并设置优惠券状态为存在";
+    else (no)
+        :"窗口提示优惠券无效";
+    endif
+endif
+
+stop
+
+@enduml
