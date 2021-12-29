@@ -42,6 +42,7 @@
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
+            {% if data['user_type'] == 'admin' %}
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('index') }}">
@@ -49,6 +50,9 @@
                     <p class="d-inline">学生信息管理</p>
                 </a>
             </li>
+            {% endif %}
+
+
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('coupon') }}">
                     <i class="fas fa-ticket-alt"></i>

@@ -58,7 +58,13 @@
                                             class="form-control form-control-user" placeholder="请输入密码">
                                     </div>
                                     <div class="form-group">
-                                        <div class="custom-control custom-checkbox small">
+                                        <select class="custom-select" name="userType" id="userTypeSelect">
+                                            <option value="student" selected>学生</option>
+                                            <option value="admin">管理</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox small mr-2">
                                             <input type="checkbox" class="custom-control-input" name="remember"
                                                 id="remember">
                                             <label class="custom-control-label" for="remember">记住我</label>
@@ -99,11 +105,11 @@
             var url_string = window.location.href;
             var url = new URL(url_string);
             var next = url.searchParams.get("next"); // 获取 url 中的 next 参数
-            var formData = new FormData(document.getElementById("loginForm"));
+            formData = new FormData(document.getElementById("loginForm"));
 
             // next 参数不为空
-            if(!!next){
-                formData.append("next",next)
+            if (!!next) {
+                formData.append("next", next);
             }
             var url = "{{ url_for('login_ajax') }}";
             formAjax(url, formData, loginSuccess)
