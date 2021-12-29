@@ -1,5 +1,4 @@
-import string
-import random
+
 from models import *
 
 # 增加学生
@@ -11,6 +10,7 @@ def add_Student(stu):
 def add_User(user):
     db.session.add(user)
     db.session.commit()
+
 # 增加优惠券
 def add_key(k):
     if(db.session.query(Key).filter(Key.code == k.code).first() is None):
@@ -21,7 +21,6 @@ def add_key(k):
         return False
 
 # 删
-
 # 删除学生指定 id
 def del_StudentById(student_id):
     db.session.query(Student).filter(Student.id == student_id).delete()
@@ -38,16 +37,30 @@ def del_KeyAll():
     db.session.commit()
 
 # 改
+# 修改学生信息
 def edit_Student(stu):
+    b = Student2Dict(stu,query_Students_Fields())
     db.session.query(Student).filter(
-        Student.id == stu.id).update(Student2Dict(stu))
+        Student.id == stu.id).update(b)
     db.session.commit()
 
+# 设置优惠券状态
+def set_key_status(code,status):
+    db.session.query(Key).filter(
+        Key.code == code).update({"status":status},synchronize_session=False)
+    db.session.commit()
 
 ### 查
+# 查询全部优惠券
 def query_Keys():
     return Key.query.all()
+# 查询优惠券是否存在
+def keyIsExist(code):
+    return Key.query.filter(Key.code == code).first() is not None
 
+# 查询优惠券是否有用
+def keyIsUseful(code):
+    return Key.query.filter(Key.code == code).first().status == False # 查询返回 False == 没用过的优惠券
 
 # 获取用户
 def query_User(username):
@@ -58,17 +71,27 @@ def query_UserById(user_id):
     return User.query.filter_by(id=user_id).first()
 
 # 获取 Student
+def query_StudentUser(name):
+    return Student.query.filter_by(name=name).first()
+
+# 获取 Student
 def query_StudentById(student_id):
     return Student.query.filter_by(id=student_id).first()
 
 # 获取 Student 字段
 def query_Students_Fields():
-    return Student.query.statement.columns.keys()
+    columns = Student.query.statement.columns.keys()
+    return columns
+
+# 获取 Student 字段，除开密码列
+def query_Students_FieldsNotPwd():
+    columns = Student.query.statement.columns.keys()
+    columns.remove("password")
+    return columns
 
 # 获取 Key 字段
 def query_Keys_Fields():
     return Key.query.statement.columns.keys()
-
 
 # 获取全部用户
 def query_Students():
@@ -94,6 +117,18 @@ def query_StudentsList():
         l.append(l1)
     return l
 
+# 查询学生列表，不包括密码列
+def query_StudentsListNotPwd():
+    fields = query_Students_FieldsNotPwd()
+    students = query_Students()
+    l = []
+    for stu in students:
+        l1 = []
+        for field in fields:
+            l1.append(getattr(stu, field))
+        l.append(l1)
+    return l
+
 # 查询转列表
 # fields : 字段
 # dataOBJ : 查询对象
@@ -108,7 +143,7 @@ def query2List(fields,dataOBJ):
 
 # 查询学生信息 返回字典
 def query_StudentDict(stu_id):
-    fields = query_Students_Fields()
+    fields = query_Students_FieldsNotPwd()
     student = query_StudentById(stu_id)
     d = {}
     for field in fields:
@@ -116,8 +151,7 @@ def query_StudentDict(stu_id):
     return d
 
 # 学生对象转字典
-def Student2Dict(student):
-    fields = query_Students_Fields()
+def Student2Dict(student,fields):
     d = {}
     for field in fields:
         d[field] = student.__dict__[field]
@@ -134,6 +168,8 @@ def keySet2DB(keyset):
 
 # 生成激活码
 def generate_keys(total):
+    import string
+    import random
     keySet = set()
     while len(keySet) != total:
         keyStr = ''
@@ -155,3 +191,6 @@ def generate_keys(total):
         keySet.add(keyStr)
     return keySet
 
+# 查询是否为管理员
+def isAdmin(session):
+    return session.get('user_type') == "admin"
