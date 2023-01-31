@@ -1,16 +1,26 @@
-from flask import Flask
-from flask_login import UserMixin
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-from models import *
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/pkd.sqlite3'
-db = SQLAlchemy(app)
+import sqlite3
+from werkzeug.security import generate_password_hash,check_password_hash
+import secrets
 
 
+# 生成随机密码
+password_length = 16
+pwd = secrets.token_urlsafe(password_length)
 
-db.create_all()
-db.session.add(User("admin","admin"))
-db.session.add(Student(id=1,name="张三",age=18,funds=5000,addr="美国洛圣都花园银行塔25楼1号"))
-db.session.commit()
+# 读取初始化 SQL 脚本文件
+sqlScript = ""
+with open('init_db.sql', 'r',encoding="utf-8") as sqlFile:
+    sqlScript = sqlFile.read()
+
+# 连接数据库并执行初始化 SQL
+conn = sqlite3.connect('db/pkd.sqlite3')
+cursor = conn.cursor()
+cursor.executescript(sqlScript)
+cursor.execute(f'''INSERT INTO users (id, username, password) VALUES (1, 'admin', '{generate_password_hash(pwd)}');''')
+conn.commit()
+conn.close()
+
+print("init db done.")
+print("admin account:","admin")
+print("password:",pwd)
+
