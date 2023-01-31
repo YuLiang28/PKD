@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="156px" preserveAspectRatio="none" style="width:161px;height:156px;background:#000000;" version="1.1" viewBox="0 0 161 156" width="161px" zoomAndPan="magnify"><defs/><g><rect fill="#00151A" height="1" style="stroke:#00151A;stroke-width:1.0;" width="1" x="0" y="0"/><text fill="#33FF02" font-family="sans-serif" font-size="12" font-style="italic" font-weight="bold" lengthAdjust="spacing" textLength="114" x="5" y="17">PlantUML 1.2021.16</text><rect fill="#33FF02" height="24.1201" style="stroke:#33FF02;stroke-width:1.0;" width="149" x="5" y="29.3887"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="147" x="6" y="44.3887">[From string (line 3) ]</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="0" x="9" y="67.5088"/><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="71" x="5" y="86.6289">@startuml</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="32" x="5" y="105.749">start</text><text fill="#33FF02" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" text-decoration="wavy underline" textLength="119" x="5" y="124.8691">"等于按钮被点击"</text><text fill="#FF0000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="95" x="9" y="143.9893">Syntax Error?</text><!--MD5=[324125c0d948ad7d36fd260a8d272145]
+@startuml
+start
+"等于按钮被点击"
+if ("优惠券是否存在") then (yes)
+    if("尝试调用 eval 函数对数据表达式进行计算") then (yes)
+        :"将计算结果返回";
+    else (no)
+        :"提示用户输入无效";
+else (no)
+    :pass
+endif
+
+stop
+
+@enduml
+
+PlantUML version 1.2021.16(Thu Dec 09 01:25:22 CST 2021)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: GBK
+Language: zh
+Country: CN
+--></g></svg>
