@@ -11,7 +11,7 @@ PKD 是一个期末作业项目。
 
 # 快速入门
 1. pip install -r requirements.txt
-2. python -m init_db run
+2. python init_db.py
 3. python -m app run
 
 # 特别说明
